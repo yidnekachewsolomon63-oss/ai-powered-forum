@@ -78,7 +78,7 @@ export default function Auth() {
         setError('Last name must be at least 3 characters long.');
         return;
       }
-      if (password.length < 6) {
+      if (password.length < 8) {
         setError('Password must be at least 6 characters long.');
         return;
       }
@@ -101,7 +101,6 @@ export default function Auth() {
         // Check location state for original URL after login
         // Redirect to original URL if present, otherwise dashboard
         const from = location.state?.from?.pathname || '/dashboard';
-        navigate(from, { replace: true });
         navigate(from, { replace: true });
       } else {
         // Registration flow
