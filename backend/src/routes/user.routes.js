@@ -15,7 +15,6 @@ const router = express.Router();
 router.get("/", getUsersController);
 
 router.get("/profile", authenticate, getProfileController);
-
 router.get("/admin", authenticate, authorizeRole("admin"), getAdminController);
 
 export default router;
