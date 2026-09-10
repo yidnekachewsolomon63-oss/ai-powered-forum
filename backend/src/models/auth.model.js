@@ -1,4 +1,3 @@
-// Auth Model
 import pool from "../../db/config.js";
 
 export async function findUserByEmail(email) {
