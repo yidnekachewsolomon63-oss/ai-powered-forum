@@ -1,3 +1,4 @@
+// user model
 import pool from "../../db/config.js";
 
 export async function getAllUsers() {
