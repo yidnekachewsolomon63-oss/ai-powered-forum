@@ -22,6 +22,7 @@ export async function getAllQuestions() {
     `
     SELECT
       q.question_id,
+      q.question_hash,
       q.title,
       q.body,
       q.created_at,
@@ -44,6 +45,7 @@ export async function getQuestionById(questionId) {
     `
     SELECT
       q.question_id,
+      q.question_hash,
       q.title,
       q.body,
       q.created_at,
@@ -63,7 +65,37 @@ export async function getQuestionById(questionId) {
   return rows[0] || null;
 }
 
-export async function updateQuestion(questionId, userId, title, body) {
+export async function getQuestionByHash(questionHash) {
+  const [rows] = await pool.query(
+    `
+    SELECT
+      q.question_id,
+      q.question_hash,
+      q.title,
+      q.body,
+      q.created_at,
+      q.updated_at,
+      q.user_id,
+      u.first_name,
+      u.last_name
+    FROM questions q
+    INNER JOIN users u
+      ON q.user_id = u.user_id
+    WHERE q.question_hash = ?
+    LIMIT 1
+    `,
+    [questionHash],
+  );
+
+  return rows[0] || null;
+}
+
+export async function updateQuestion(
+  questionId,
+  userId,
+  title,
+  body,
+) {
   const [result] = await pool.query(
     `
     UPDATE questions
@@ -76,7 +108,7 @@ export async function updateQuestion(questionId, userId, title, body) {
     [title, body, questionId, userId],
   );
 
-  return result;
+  return result.affectedRows > 0;
 }
 
 export async function deleteQuestion(questionId, userId) {
@@ -89,7 +121,7 @@ export async function deleteQuestion(questionId, userId) {
     [questionId, userId],
   );
 
-  return result;
+  return result.affectedRows > 0;
 }
 
 export async function deleteQuestionByAdmin(questionId) {
@@ -101,5 +133,5 @@ export async function deleteQuestionByAdmin(questionId) {
     [questionId],
   );
 
-  return result;
+  return result.affectedRows > 0;
 }
