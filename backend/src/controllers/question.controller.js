@@ -2,6 +2,7 @@ import {
   createNewQuestion,
   getQuestions,
   getQuestion,
+  getQuestionDetails,
   updateUserQuestion,
   deleteUserQuestion,
   deleteAdminQuestion,
@@ -9,9 +10,18 @@ import {
 
 import { validateQuestionInput } from "../validations/question.validation.js";
 
-export async function createQuestionController(req, res, next) {
+export async function createQuestionController(
+  req,
+  res,
+  next,
+) {
   try {
-    const validationError = validateQuestionInput(req.body);
+    const { title, body } = req.body;
+
+    const validationError = validateQuestionInput({
+      title,
+      body,
+    });
 
     if (validationError) {
       return res.status(400).json({
@@ -20,17 +30,16 @@ export async function createQuestionController(req, res, next) {
       });
     }
 
-    const { title, body } = req.body;
+    const userId = req.user.user_id;
 
     const question = await createNewQuestion({
-      user_id: req.user.user_id,
-      title: title.trim(),
-      body: body.trim(),
+      user_id: userId,
+      title,
+      body,
     });
 
     res.status(201).json({
       success: true,
-      message: "Question created successfully",
       data: question,
     });
   } catch (error) {
@@ -38,7 +47,11 @@ export async function createQuestionController(req, res, next) {
   }
 }
 
-export async function getQuestionsController(req, res, next) {
+export async function getQuestionsController(
+  req,
+  res,
+  next,
+) {
   try {
     const questions = await getQuestions();
 
@@ -51,39 +64,39 @@ export async function getQuestionsController(req, res, next) {
   }
 }
 
-export async function getQuestionController(req, res, next) {
+export async function getQuestionController(
+  req,
+  res,
+  next,
+) {
   try {
-    const questionId = Number(req.params.id);
+    const { questionHash } = req.params;
 
-    if (!Number.isInteger(questionId)) {
+    if (!questionHash) {
       return res.status(400).json({
         success: false,
-        message: "Invalid question ID",
+        message: "Question hash is required",
       });
     }
 
-    const question = await getQuestion(questionId);
+    const questionDetails =
+      await getQuestionDetails(questionHash);
 
     res.status(200).json({
       success: true,
-      data: question,
+      data: questionDetails,
     });
   } catch (error) {
     next(error);
   }
 }
 
-export async function updateQuestionController(req, res, next) {
+export async function updateQuestionController(
+  req,
+  res,
+  next,
+) {
   try {
-    const validationError = validateQuestionInput(req.body);
-
-    if (validationError) {
-      return res.status(400).json({
-        success: false,
-        message: validationError,
-      });
-    }
-
     const questionId = Number(req.params.id);
 
     if (!Number.isInteger(questionId)) {
@@ -95,16 +108,29 @@ export async function updateQuestionController(req, res, next) {
 
     const { title, body } = req.body;
 
+    const validationError = validateQuestionInput({
+      title,
+      body,
+    });
+
+    if (validationError) {
+      return res.status(400).json({
+        success: false,
+        message: validationError,
+      });
+    }
+
+    const userId = req.user.user_id;
+
     const question = await updateUserQuestion(
       questionId,
-      req.user.user_id,
-      title.trim(),
-      body.trim(),
+      userId,
+      title,
+      body,
     );
 
     res.status(200).json({
       success: true,
-      message: "Question updated successfully",
       data: question,
     });
   } catch (error) {
@@ -112,7 +138,11 @@ export async function updateQuestionController(req, res, next) {
   }
 }
 
-export async function deleteQuestionController(req, res, next) {
+export async function deleteQuestionController(
+  req,
+  res,
+  next,
+) {
   try {
     const questionId = Number(req.params.id);
 
@@ -123,7 +153,9 @@ export async function deleteQuestionController(req, res, next) {
       });
     }
 
-    await deleteUserQuestion(questionId, req.user.user_id);
+    const userId = req.user.user_id;
+
+    await deleteUserQuestion(questionId, userId);
 
     res.status(200).json({
       success: true,
@@ -134,7 +166,11 @@ export async function deleteQuestionController(req, res, next) {
   }
 }
 
-export async function deleteAdminQuestionController(req, res, next) {
+export async function deleteAdminQuestionController(
+  req,
+  res,
+  next,
+) {
   try {
     const questionId = Number(req.params.id);
 
@@ -149,7 +185,7 @@ export async function deleteAdminQuestionController(req, res, next) {
 
     res.status(200).json({
       success: true,
-      message: "Question deleted by admin",
+      message: "Question deleted successfully",
     });
   } catch (error) {
     next(error);

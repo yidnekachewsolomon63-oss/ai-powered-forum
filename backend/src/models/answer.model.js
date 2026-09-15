@@ -1,16 +1,19 @@
 import pool from "../../db/config.js";
 
-export async function createAnswer({ question_id, user_id, body }) {
+export async function createAnswer({
+  question_id,
+  user_id,
+  body,
+}) {
   const [result] = await pool.query(
     `
     INSERT INTO answers
     (
       question_id,
       user_id,
-      body,
-      is_ai_generated
+      body
     )
-    VALUES (?, ?, ?, FALSE)
+    VALUES (?, ?, ?)
     `,
     [question_id, user_id, body],
   );
@@ -26,8 +29,8 @@ export async function getAnswersByQuestionId(questionId) {
       a.question_id,
       a.user_id,
       a.body,
-      a.is_ai_generated,
       a.created_at,
+      a.updated_at,
       u.first_name,
       u.last_name
     FROM answers a
@@ -50,8 +53,8 @@ export async function getAnswerById(answerId) {
       a.question_id,
       a.user_id,
       a.body,
-      a.is_ai_generated,
       a.created_at,
+      a.updated_at,
       u.first_name,
       u.last_name
     FROM answers a
@@ -66,7 +69,11 @@ export async function getAnswerById(answerId) {
   return rows[0] || null;
 }
 
-export async function updateAnswer(answerId, userId, body) {
+export async function updateAnswer(
+  answerId,
+  userId,
+  body,
+) {
   const [result] = await pool.query(
     `
     UPDATE answers
@@ -77,7 +84,7 @@ export async function updateAnswer(answerId, userId, body) {
     [body, answerId, userId],
   );
 
-  return result;
+  return result.affectedRows > 0;
 }
 
 export async function deleteAnswer(answerId, userId) {
@@ -90,5 +97,5 @@ export async function deleteAnswer(answerId, userId) {
     [answerId, userId],
   );
 
-  return result;
+  return result.affectedRows > 0;
 }
