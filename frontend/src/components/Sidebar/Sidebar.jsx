@@ -1,5 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, MessageSquare, FileText } from 'lucide-react';
+import {
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  FileText,
+  ShieldCheck,
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Sidebar.module.css';
 
@@ -13,9 +19,12 @@ const NAV_ITEMS = [
   { icon: FileText, label: 'Knowledge Base', path: '/rag-documents' },
 ];
 
+const ADMIN_ITEMS = [{ icon: ShieldCheck, label: 'Admin Panel', path: '/admin' }];
+
 export default function Sidebar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   return (
     <aside className={styles.sidebar}>
@@ -75,6 +84,40 @@ export default function Sidebar() {
             </NavLink>
           </div>
         ))}
+
+        {isAdmin && (
+          <>
+            <p className={styles.sidebar__navLabel}>Administration</p>
+            {ADMIN_ITEMS.map(item => (
+              <div key={item.path} className={styles['sidebar__nav-item-wrapper']}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `${styles.sidebar__link} ${
+                      isActive
+                        ? styles['sidebar__link--active']
+                        : styles['sidebar__link--inactive']
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <item.icon
+                        size={18}
+                        className={`${styles.sidebar__icon} ${
+                          isActive
+                            ? styles['sidebar__icon--active']
+                            : styles['sidebar__icon--inactive']
+                        }`}
+                      />
+                      <span>{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              </div>
+            ))}
+          </>
+        )}
       </nav>
 
       <div className={styles.sidebar__footer}>
@@ -105,7 +148,9 @@ export default function Sidebar() {
               <p className={styles.sidebar__name}>
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className={styles.sidebar__role}>Learner</p>
+              <p className={styles.sidebar__role}>
+                {isAdmin ? 'Administrator' : 'Learner'}
+              </p>
             </div>
           </div>
 

@@ -20,6 +20,11 @@ export default function Layout() {
     if (path === '/questions/ask') return 'Ask a question';
     if (path.startsWith('/questions/')) return 'Discussion';
     if (path === '/rag-documents') return 'Knowledge base';
+    if (path === '/admin') return 'Admin dashboard';
+    if (path === '/admin/users') return 'Manage users';
+    if (path === '/admin/questions') return 'Manage questions';
+    if (path === '/admin/answers') return 'Manage answers';
+    if (path === '/admin/documents') return 'Manage documents';
     return 'Forum';
   };
 
@@ -36,6 +41,11 @@ export default function Layout() {
       return 'Read the thread, review related topics, and reply with markdown if you can help.';
     if (path === '/rag-documents')
       return 'Private PDF library: reader, semantic search, and AI answers with citations per document.';
+    if (path === '/admin') return 'Site-wide overview and moderation tools.';
+    if (path === '/admin/users') return 'Promote, deactivate, or remove accounts.';
+    if (path === '/admin/questions') return 'Review and moderate all questions.';
+    if (path === '/admin/answers') return 'Review and moderate all answers.';
+    if (path === '/admin/documents') return 'Review all knowledge-base documents.';
     return '';
   };
 
