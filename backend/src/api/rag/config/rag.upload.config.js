@@ -2,12 +2,12 @@
  * multer configuration for RAG PDF uploads.
  * Files are stored under `RAG_UPLOAD_DIR/<userId>/<timestamp>-<random>.pdf`.
  */
-import multer from 'multer';
-import path from 'node:path';
-import fs from 'node:fs';
-import { BadRequestError } from '../../../utils/errors/index.js';
+import multer from "multer";
+import path from "node:path";
+import fs from "node:fs";
+import { BadRequestError } from "../../../utils/errors/index.js";
 
-const RAG_UPLOAD_DIR = process.env.RAG_UPLOAD_DIR || 'uploads/rag';
+const RAG_UPLOAD_DIR = process.env.RAG_UPLOAD_DIR || "uploads/rag";
 const RAG_MAX_UPLOAD_MB = Number(process.env.RAG_MAX_UPLOAD_MB) || 5;
 const MAX_FILE_BYTES = RAG_MAX_UPLOAD_MB * 1024 * 1024;
 
@@ -19,8 +19,8 @@ fs.mkdirSync(UPLOAD_ROOT, { recursive: true });
 
 /** Safe filename: keeps the extension only, avoiding path tricks. */
 function safeExtension(file) {
-  const ext = path.extname(file.originalname || '').toLowerCase();
-  return ext === '.pdf' ? '.pdf' : '.pdf';
+  const ext = path.extname(file.originalname || "").toLowerCase();
+  return ext === ".pdf" ? ".pdf" : ".pdf";
 }
 
 /**
@@ -48,10 +48,8 @@ export const ragUpload = multer({
     files: 1,
   },
   fileFilter(req, file, cb) {
-    if (file.mimetype !== 'application/pdf' && safeExtension(file) !== '.pdf') {
-      return cb(
-        new BadRequestError('Only PDF files are allowed'),
-      );
+    if (file.mimetype !== "application/pdf" && safeExtension(file) !== ".pdf") {
+      return cb(new BadRequestError("Only PDF files are allowed"));
     }
     cb(null, true);
   },
@@ -64,7 +62,7 @@ export const ragUpload = multer({
 export const createDocumentMulterErrorHandler = (err, _req, _res, next) => {
   if (!err) return next();
 
-  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
     return next(
       new BadRequestError(
         `File is too large. Maximum allowed size is ${RAG_MAX_UPLOAD_MB}MB.`,
@@ -72,8 +70,8 @@ export const createDocumentMulterErrorHandler = (err, _req, _res, next) => {
     );
   }
 
-  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_COUNT') {
-    return next(new BadRequestError('Only one file can be uploaded at a time'));
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_COUNT") {
+    return next(new BadRequestError("Only one file can be uploaded at a time"));
   }
 
   return next(err);
