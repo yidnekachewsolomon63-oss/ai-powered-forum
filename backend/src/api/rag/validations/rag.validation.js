@@ -1,13 +1,13 @@
-import { body, param, query } from 'express-validator';
-import { validationErrorHandler } from '../../../middleware/validation-handler.js';
+import { body, param, query } from "express-validator";
+import { validationErrorHandler } from "../../../middleware/validation-handler.js";
 
 /** Reusable path parameter validation for `/api/rag/documents/:documentId`. */
 export const documentIdParamValidation = [
-  param('documentId')
+  param("documentId")
     .notEmpty()
-    .withMessage('documentId is required')
+    .withMessage("documentId is required")
     .isInt({ min: 1 })
-    .withMessage('documentId must be a positive integer'),
+    .withMessage("documentId must be a positive integer"),
   validationErrorHandler,
 ];
 
@@ -16,15 +16,15 @@ export const documentIdParamValidation = [
  */
 export const searchInDocumentValidation = [
   ...documentIdParamValidation,
-  query('query')
+  query("query")
     .notEmpty()
-    .withMessage('query is required')
+    .withMessage("query is required")
     .isString()
-    .withMessage('query must be a string'),
-  query('k')
+    .withMessage("query must be a string"),
+  query("k")
     .optional()
     .isInt({ min: 1, max: 50 })
-    .withMessage('k must be an integer between 1 and 50'),
+    .withMessage("k must be an integer between 1 and 50"),
   validationErrorHandler,
 ];
 
@@ -33,10 +33,10 @@ export const searchInDocumentValidation = [
  */
 export const queryDocumentValidation = [
   ...documentIdParamValidation,
-  body('query')
+  body("query")
     .notEmpty()
-    .withMessage('query is required')
+    .withMessage("query is required")
     .isString()
-    .withMessage('query must be a string'),
+    .withMessage("query must be a string"),
   validationErrorHandler,
 ];
