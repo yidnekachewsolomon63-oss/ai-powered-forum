@@ -14,11 +14,14 @@ CREATE TABLE `users` (
     `last_name` VARCHAR(50) NOT NULL,
     `email` VARCHAR(320) NOT NULL UNIQUE,
     `password_hash` VARCHAR(255) NOT NULL,
+    `role` VARCHAR(20) NOT NULL DEFAULT 'user',        -- 'user' | 'admin'
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,          -- 1 = active, 0 = deactivated
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CHECK (`email` = LOWER(`email`)),
     
-    INDEX `idx_users_email` (`email`)
+    INDEX `idx_users_email` (`email`),
+    INDEX `idx_users_role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -86,7 +89,68 @@ CREATE TABLE `answers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- 5. RAG: user-owned PDF documents, text chunks, and chunk embeddings
+-- 5. Answer Votes Table
+-- Stores up/down votes on answers. One row per (user, answer).
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `answer_votes`;
+CREATE TABLE `answer_votes` (
+    `user_id` INT NOT NULL,
+    `answer_id` INT NOT NULL,
+    `vote` TINYINT NOT NULL DEFAULT 1, -- 1 = upvote, -1 = downvote
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (`user_id`, `answer_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`answer_id`) REFERENCES `answers`(`answer_id`) ON DELETE CASCADE,
+
+    INDEX `idx_answer_votes_answer_id` (`answer_id`),
+    CONSTRAINT `chk_answer_votes_value` CHECK (`vote` IN (-1, 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 6. Answer Vectors Table
+-- Stores embeddings for answers so threads can be ranked by AI relevance
+-- against the question embedding (blended with the net vote score).
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `answer_vectors`;
+CREATE TABLE `answer_vectors` (
+    `vector_id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `answer_id` INT NOT NULL,
+    `source_text` TEXT NOT NULL, -- Text used to generate the embedding
+    `embedding` JSON NOT NULL,   -- Gemini embedding vector
+    `status` VARCHAR(20) DEFAULT 'ready', -- e.g., 'ready', 'pending', 'failed'
+    `ai_grade` VARCHAR(16) DEFAULT NULL, -- Gemini recommendation: 'Good', 'Moderate', 'Low'
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`answer_id`) REFERENCES `answers`(`answer_id`) ON DELETE CASCADE,
+    UNIQUE KEY `uniq_answer_vectors_answer_id` (`answer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 7. Notifications Table
+-- Stores per-user activity alerts (e.g. "someone answered your question").
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `notifications`;
+CREATE TABLE `notifications` (
+    `notification_id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,                 -- Recipient (the question author)
+    `type` VARCHAR(32) NOT NULL DEFAULT 'answer_added',
+    `message` VARCHAR(512) NOT NULL,        -- Pre-rendered human-readable text
+    `question_id` INT NOT NULL,             -- Thread this notification points to
+    `question_hash` CHAR(16) NOT NULL,      -- Used for /questions/:hash routing
+    `is_read` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`question_id`) REFERENCES `questions`(`question_id`) ON DELETE CASCADE,
+
+    INDEX `idx_notifications_user_read` (`user_id`, `is_read`, `created_at`),
+    INDEX `idx_notifications_question` (`question_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 8. RAG: user-owned PDF documents, text chunks, and chunk embeddings
 -- -----------------------------------------------------------------------------
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (

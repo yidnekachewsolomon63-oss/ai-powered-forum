@@ -4,13 +4,13 @@
  *  - Answer fit: how well a draft answer addresses a question.
  *  - RAG answer: ground an answer strictly in retrieved document chunks.
  */
-import { safeExecute } from "../../db/config.js";
-import { NotFoundError } from "../utils/errors/index.js";
+import { safeExecute } from '../../db/config.js';
+import { NotFoundError } from '../utils/errors/index.js';
 import {
   generateText,
   extractJsonFromResponse,
   TEXT_MODEL,
-} from "./gemini.service.js";
+} from './gemini.service.js';
 
 const COACH_SYSTEM_PROMPT = `
 You are an expert programming-forum coach for a cohort of software-engineering
@@ -25,7 +25,7 @@ function buildDraftCoachPrompt({ title, content }) {
 Review the following forum question draft and suggest improvements.
 
 Title:
-"""${title || "(no title yet)"}"""
+"""${title || '(no title yet)'}"""
 
 Content:
 """${content}"""
@@ -60,7 +60,7 @@ export const generateQuestionDraftCoachService = async ({ title, content }) => {
   }
 
   return {
-    feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
+    feedback: typeof parsed.feedback === 'string' ? parsed.feedback : '',
     tips: parsed.tips.map(String).filter(Boolean),
   };
 };
@@ -102,31 +102,30 @@ export const assessAnswerAgainstQuestionService = async ({
   answerText,
 }) => {
   const questionSql =
-    "SELECT question_id, title, content FROM questions WHERE question_hash = ? LIMIT 1";
+    'SELECT question_id, title, content FROM questions WHERE question_hash = ? LIMIT 1';
   const rows = await safeExecute(questionSql, [questionHash]);
 
   if (rows.length === 0) {
-    throw new NotFoundError("Question not found");
+    throw new NotFoundError('Question not found');
   }
 
-  const raw = await generateText(buildAnswerFitPrompt(rows[0], answerText), {
-    model: TEXT_MODEL,
-    systemInstruction: COACH_SYSTEM_PROMPT,
-  });
+  const raw = await generateText(
+    buildAnswerFitPrompt(rows[0], answerText),
+    { model: TEXT_MODEL, systemInstruction: COACH_SYSTEM_PROMPT },
+  );
 
   const parsed = extractJsonFromResponse(raw);
   const level =
-    parsed && ["strong", "partial", "weak"].includes(parsed.level)
+    parsed && ['strong', 'partial', 'weak'].includes(parsed.level)
       ? parsed.level
-      : "partial";
+      : 'partial';
 
   return {
     level,
     note:
-      typeof parsed?.note === "string"
+      typeof parsed?.note === 'string'
         ? parsed.note
-        : "The AI could not produce a structured evaluation, but here is its raw reply:\n" +
-          raw.trim(),
+        : 'The AI could not produce a structured evaluation, but here is its raw reply:\n' + raw.trim(),
   };
 };
 
@@ -139,7 +138,7 @@ function buildRagAnswerPrompt(query, chunks) {
       (chunk, index) =>
         `[Chunk ${index + 1} (ref ${chunk.chunkId})]\n${chunk.content}`,
     )
-    .join("\n\n---\n\n");
+    .join('\n\n---\n\n');
 
   return `
 Answer the user's question using ONLY the provided context chunks. If the
@@ -162,7 +161,9 @@ User question:
  * @param {Object} input
  * @param {string} input.query - User question.
  * @param {Array<Object>} input.chunks - `[{ chunkId, content }]` context chunks.
- * @returns {Promise<Object>} `{ answer, citations, chunksUsed }`.
+ * @returns {Promise<Object>} `{ answer, citations, chunksUsed }` where
+ *   `citations` is an array of passage snippets (strings) and `chunksUsed`
+ *   is the array of referenced chunk ids.
  */
 export const answerFromRagChunksService = async ({ query, chunks }) => {
   const raw = await generateText(buildRagAnswerPrompt(query, chunks), {
@@ -170,14 +171,21 @@ export const answerFromRagChunksService = async ({ query, chunks }) => {
     systemInstruction: COACH_SYSTEM_PROMPT,
   });
 
-  const references = (raw.match(/ref:\s*(\d+)/gi) || []).map((m) =>
-    Number(m.replace(/ref:\s*/i, "")),
+  const references = (raw.match(/ref:\s*(\d+)/gi) || []).map(m =>
+    Number(m.replace(/ref:\s*/i, '')),
   );
   const chunksUsed = Array.from(new Set(references.filter(Boolean)));
 
   const citations = chunks
-    .filter((chunk) => chunksUsed.includes(chunk.chunkId))
-    .map((chunk) => ({ ref: chunk.chunkId, chunkIndex: chunk.chunkIndex }));
+    .filter(chunk => chunksUsed.includes(chunk.chunkId))
+    .map(chunk => {
+      const content = String(chunk.content || '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return content.length > 180
+        ? `${content.slice(0, 180).trimEnd()}…`
+        : content;
+    });
 
   const parsed = extractJsonFromResponse(raw);
   const answer = parsed?.answer ? String(parsed.answer) : raw.trim();

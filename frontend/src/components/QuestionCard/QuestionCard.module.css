@@ -56,6 +56,14 @@
   white-space: pre-line;
 }
 
+.cardTitle mark,
+.cardExcerpt mark {
+  background-color: rgba(250, 204, 21, 0.4);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 .cardMeta {
   display: flex;
   flex-wrap: wrap;
@@ -69,16 +77,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-}
-
-.cardScore {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.1rem 0.5rem;
-  font-weight: var(--font-medium);
-  color: var(--primary-dark);
-  background-color: var(--primary-light);
-  border-radius: var(--radius-full);
 }
 
 .cardArrow {
