@@ -22,7 +22,7 @@ async function createQuestion(payload) {
  * Fetches a single question by its 16-char hash (includes answers).
  * @param {string} questionHash
  */
-async function getSingleQuestion(questionHash) {
+async function getSingleQuestion(questgiionHash) {
   const response = await apiClient.get(`/api/questions/${questionHash}`);
   return response.data;
 }

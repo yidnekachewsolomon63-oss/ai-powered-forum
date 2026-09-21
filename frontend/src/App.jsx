@@ -14,7 +14,7 @@ import Landing from "./pages/Landing/Landing";
 import MyQuestions from "./pages/MyQuestions/MyQuestions";
 import PostQuestion from "./pages/PostQuestion/PostQuestion";
 import QuestionDetail from "./pages/QuestionDetail/QuestionDetail";
-import RagDocuments from "./pages/RagDocuments/RagDocuments";
+import { RagDocuments } from "./pages/RagDocuments/RagDocuments";
 
 function App() {
   return (
