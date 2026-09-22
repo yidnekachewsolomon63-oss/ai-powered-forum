@@ -1,5 +1,5 @@
-import express from 'express';
-import { authenticateUser } from '../../../middleware/authentication.js';
+import express from "express";
+import { authenticateUser } from "../../../middleware/authentication.js";
 import {
   createQuestionController,
   getQuestionsController,
@@ -8,7 +8,9 @@ import {
   getSimilarQuestionsController,
   assessAnswerAgainstQuestionController,
   generateQuestionDraftCoachController,
-} from '../controller/question.controller.js';
+  generateSuggestedAnswerController,
+  getDashboardStatsController,
+} from "../controller/question.controller.js";
 import {
   createQuestionValidation,
   getQuestionsValidation,
@@ -17,7 +19,8 @@ import {
   getSimilarQuestionsValidation,
   assessAnswerFitValidation,
   generateQuestionDraftCoachValidation,
-} from '../validations/question.validation.js';
+  generateAnswerSuggestionValidation,
+} from "../validations/question.validation.js";
 
 const router = express.Router();
 
@@ -29,14 +32,14 @@ router.use(authenticateUser);
  * @desc List questions (keyword search / mine filters)
  * @access Protected
  */
-router.get('/', getQuestionsValidation, getQuestionsController);
+router.get("/", getQuestionsValidation, getQuestionsController);
 
 /**
  * @route POST /api/questions
  * @desc Create a question + auto-embed
  * @access Protected
  */
-router.post('/', createQuestionValidation, createQuestionController);
+router.post("/", createQuestionValidation, createQuestionController);
 
 /**
  * @route POST /api/questions/draft-coach
@@ -44,7 +47,7 @@ router.post('/', createQuestionValidation, createQuestionController);
  * @access Protected
  */
 router.post(
-  '/draft-coach',
+  "/draft-coach",
   generateQuestionDraftCoachValidation,
   generateQuestionDraftCoachController,
 );
@@ -54,7 +57,18 @@ router.post(
  * @desc Semantic search over question embeddings
  * @access Protected
  */
-router.get('/search', searchQuestionsValidation, searchQuestionsSemanticController);
+router.get(
+  "/search",
+  searchQuestionsValidation,
+  searchQuestionsSemanticController,
+);
+
+/**
+ * @route GET /api/questions/stats
+ * @desc Dashboard summary counts (total/all/answered/my questions)
+ * @access Protected
+ */
+router.get("/stats", getDashboardStatsController);
 
 /**
  * @route POST /api/questions/:questionHash/answer-fit
@@ -62,9 +76,20 @@ router.get('/search', searchQuestionsValidation, searchQuestionsSemanticControll
  * @access Protected
  */
 router.post(
-  '/:questionHash/answer-fit',
+  "/:questionHash/answer-fit",
   assessAnswerFitValidation,
   assessAnswerAgainstQuestionController,
+);
+
+/**
+ * @route POST /api/questions/:questionHash/answer-suggest
+ * @desc AI-drafted answer suggestion for the question
+ * @access Protected
+ */
+router.post(
+  "/:questionHash/answer-suggest",
+  generateAnswerSuggestionValidation,
+  generateSuggestedAnswerController,
 );
 
 /**
@@ -73,7 +98,7 @@ router.post(
  * @access Protected
  */
 router.get(
-  '/:questionHash/similar',
+  "/:questionHash/similar",
   getSimilarQuestionsValidation,
   getSimilarQuestionsController,
 );
@@ -84,7 +109,7 @@ router.get(
  * @access Protected
  */
 router.get(
-  '/:questionHash',
+  "/:questionHash",
   getSingleQuestionValidation,
   getSingleQuestionController,
 );

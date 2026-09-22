@@ -407,6 +407,36 @@ export const getSingleQuestionService = async (questionHash, userId) => {
 };
 
 /**
+ * Forum-wide summary counts for the user dashboard.
+ *
+ * @param {Object} input
+ * @param {number} input.userId - Authenticated user id.
+ * @returns {Promise<Object>} `{ totalQuestions, totalReplies, answeredQuestions, myQuestions }`.
+ */
+export const getDashboardStatsService = async ({ userId }) => {
+  const [totalQuestions] = await safeExecute(
+    'SELECT COUNT(*) AS n FROM questions',
+    [],
+  );
+  const [totalReplies] = await safeExecute('SELECT COUNT(*) AS n FROM answers', []);
+  const [answeredQuestions] = await safeExecute(
+    'SELECT COUNT(DISTINCT question_id) AS n FROM answers',
+    [],
+  );
+  const [myQuestions] = await safeExecute(
+    'SELECT COUNT(*) AS n FROM questions WHERE user_id = ?',
+    [userId],
+  );
+
+  return {
+    totalQuestions: Number(totalQuestions.n) || 0,
+    totalReplies: Number(totalReplies.n) || 0,
+    answeredQuestions: Number(answeredQuestions.n) || 0,
+    myQuestions: Number(myQuestions.n) || 0,
+  };
+};
+
+/**
  * Performs semantic search over stored question embeddings.
  *
  * @param {Object} input
