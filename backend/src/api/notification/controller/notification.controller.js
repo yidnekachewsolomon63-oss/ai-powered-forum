@@ -1,9 +1,9 @@
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
 import {
   getNotificationsService,
   markNotificationReadService,
   markAllNotificationsReadService,
-} from "../service/notification.service.js";
+} from '../service/notification.service.js';
 
 /**
  * GET /api/notifications

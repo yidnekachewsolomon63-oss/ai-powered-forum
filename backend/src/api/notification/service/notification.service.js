@@ -1,4 +1,4 @@
-import { safeExecute } from "../../../../db/config.js";
+import { safeExecute } from '../../../../db/config.js';
 
 /**
  * Lists a user's notifications (newest first) plus the unread count so the
@@ -10,9 +10,7 @@ import { safeExecute } from "../../../../db/config.js";
  * @returns {Promise<Object>} `{ notifications, unreadCount }`.
  */
 export const getNotificationsService = async ({ userId, limit = 30 }) => {
-  const limitN = Number.isFinite(Number(limit))
-    ? Math.min(Math.max(Number(limit), 1), 100)
-    : 30;
+  const limitN = Number.isFinite(Number(limit)) ? Math.min(Math.max(Number(limit), 1), 100) : 30;
 
   const listSql = `
     SELECT
@@ -31,10 +29,10 @@ export const getNotificationsService = async ({ userId, limit = 30 }) => {
   const rows = await safeExecute(listSql, [userId, limitN]);
 
   const countSql =
-    "SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND is_read = 0";
+    'SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND is_read = 0';
   const countRows = await safeExecute(countSql, [userId]);
 
-  const notifications = rows.map((row) => ({
+  const notifications = rows.map(row => ({
     id: row.notification_id,
     type: row.type,
     message: row.message,
@@ -63,7 +61,7 @@ export const markNotificationReadService = async ({
   notificationId,
 }) => {
   const sql =
-    "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND notification_id = ?";
+    'UPDATE notifications SET is_read = 1 WHERE user_id = ? AND notification_id = ?';
   await safeExecute(sql, [userId, notificationId]);
   return { isRead: true };
 };
@@ -76,8 +74,7 @@ export const markNotificationReadService = async ({
  * @returns {Promise<{ success: boolean }>}
  */
 export const markAllNotificationsReadService = async ({ userId }) => {
-  const sql =
-    "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0";
+  const sql = 'UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0';
   await safeExecute(sql, [userId]);
   return { success: true };
 };
