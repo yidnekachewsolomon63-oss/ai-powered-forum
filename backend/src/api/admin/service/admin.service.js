@@ -1,9 +1,6 @@
-import { db, safeExecute } from '../../../../db/config.js';
-import {
-  BadRequestError,
-  NotFoundError,
-} from '../../../utils/errors/index.js';
-import { resolveStoragePath } from '../../rag/service/rag.service.js';
+import { db, safeExecute } from "../../../../db/config.js";
+import { BadRequestError, NotFoundError } from "../../../utils/errors/index.js";
+import { resolveStoragePath } from "../../rag/service/rag.service.js";
 
 /**
  * Maps a user row to the admin-facing user shape with content counts.
@@ -28,10 +25,10 @@ function mapAdminUser(row) {
  */
 export const getAdminStatsService = async () => {
   const [[users], [questions], [answers], [documents]] = await Promise.all([
-    db.query('SELECT COUNT(*) AS n FROM users'),
-    db.query('SELECT COUNT(*) AS n FROM questions'),
-    db.query('SELECT COUNT(*) AS n FROM answers'),
-    db.query('SELECT COUNT(*) AS n FROM documents'),
+    db.query("SELECT COUNT(*) AS n FROM users"),
+    db.query("SELECT COUNT(*) AS n FROM questions"),
+    db.query("SELECT COUNT(*) AS n FROM answers"),
+    db.query("SELECT COUNT(*) AS n FROM documents"),
   ]);
 
   const [recentSql] = await db.query(`
@@ -73,24 +70,24 @@ export const listUsersService = async () => {
  * Updates a user's role (`admin` or `user`).
  */
 export const updateUserRoleService = async ({ userId, role, actorId }) => {
-  if (!['admin', 'user'].includes(role)) {
+  if (!["admin", "user"].includes(role)) {
     throw new BadRequestError('role must be either "admin" or "user"');
   }
 
   const targetId = Number(userId);
   if (targetId === Number(actorId)) {
-    throw new BadRequestError('You cannot change your own role');
+    throw new BadRequestError("You cannot change your own role");
   }
 
   const rows = await safeExecute(
-    'SELECT user_id FROM users WHERE user_id = ? LIMIT 1',
+    "SELECT user_id FROM users WHERE user_id = ? LIMIT 1",
     [targetId],
   );
   if (rows.length === 0) {
     throw new NotFoundError(`User ${targetId} not found`);
   }
 
-  await safeExecute('UPDATE users SET role = ? WHERE user_id = ?', [
+  await safeExecute("UPDATE users SET role = ? WHERE user_id = ?", [
     role,
     targetId,
   ]);
@@ -109,18 +106,18 @@ export const updateUserStatusService = async ({
 
   const targetId = Number(userId);
   if (targetId === Number(actorId)) {
-    throw new BadRequestError('You cannot deactivate your own account');
+    throw new BadRequestError("You cannot deactivate your own account");
   }
 
   const rows = await safeExecute(
-    'SELECT user_id FROM users WHERE user_id = ? LIMIT 1',
+    "SELECT user_id FROM users WHERE user_id = ? LIMIT 1",
     [targetId],
   );
   if (rows.length === 0) {
     throw new NotFoundError(`User ${targetId} not found`);
   }
 
-  await safeExecute('UPDATE users SET is_active = ? WHERE user_id = ?', [
+  await safeExecute("UPDATE users SET is_active = ? WHERE user_id = ?", [
     active ? 1 : 0,
     targetId,
   ]);
@@ -133,18 +130,18 @@ export const updateUserStatusService = async ({
 export const adminDeleteUserService = async ({ userId, actorId }) => {
   const targetId = Number(userId);
   if (targetId === Number(actorId)) {
-    throw new BadRequestError('You cannot delete your own account');
+    throw new BadRequestError("You cannot delete your own account");
   }
 
   const rows = await safeExecute(
-    'SELECT user_id FROM users WHERE user_id = ? LIMIT 1',
+    "SELECT user_id FROM users WHERE user_id = ? LIMIT 1",
     [targetId],
   );
   if (rows.length === 0) {
     throw new NotFoundError(`User ${targetId} not found`);
   }
 
-  await safeExecute('DELETE FROM users WHERE user_id = ?', [targetId]);
+  await safeExecute("DELETE FROM users WHERE user_id = ?", [targetId]);
   return { id: targetId };
 };
 
@@ -165,7 +162,7 @@ export const listAllQuestionsService = async () => {
     ORDER BY q.created_at DESC
   `;
   const rows = await safeExecute(sql, []);
-  return rows.map(row => ({
+  return rows.map((row) => ({
     id: row.question_id,
     questionHash: row.question_hash,
     title: row.title,
@@ -183,17 +180,17 @@ export const listAllQuestionsService = async () => {
 /**
  * Deletes any question (cascades answers + question vector).
  */
-export const adminDeleteQuestionService = async questionId => {
+export const adminDeleteQuestionService = async (questionId) => {
   const targetId = Number(questionId);
   const rows = await safeExecute(
-    'SELECT question_id FROM questions WHERE question_id = ? LIMIT 1',
+    "SELECT question_id FROM questions WHERE question_id = ? LIMIT 1",
     [targetId],
   );
   if (rows.length === 0) {
     throw new NotFoundError(`Question ${targetId} not found`);
   }
 
-  await safeExecute('DELETE FROM questions WHERE question_id = ?', [targetId]);
+  await safeExecute("DELETE FROM questions WHERE question_id = ?", [targetId]);
   return { id: targetId };
 };
 
@@ -212,7 +209,7 @@ export const listAllAnswersService = async () => {
     ORDER BY a.created_at DESC
   `;
   const rows = await safeExecute(sql, []);
-  return rows.map(row => ({
+  return rows.map((row) => ({
     id: row.answer_id,
     content: row.content,
     createdAt: row.created_at,
@@ -232,17 +229,17 @@ export const listAllAnswersService = async () => {
 /**
  * Deletes any answer.
  */
-export const adminDeleteAnswerService = async answerId => {
+export const adminDeleteAnswerService = async (answerId) => {
   const targetId = Number(answerId);
   const rows = await safeExecute(
-    'SELECT answer_id FROM answers WHERE answer_id = ? LIMIT 1',
+    "SELECT answer_id FROM answers WHERE answer_id = ? LIMIT 1",
     [targetId],
   );
   if (rows.length === 0) {
     throw new NotFoundError(`Answer ${targetId} not found`);
   }
 
-  await safeExecute('DELETE FROM answers WHERE answer_id = ?', [targetId]);
+  await safeExecute("DELETE FROM answers WHERE answer_id = ?", [targetId]);
   return { id: targetId };
 };
 
@@ -260,7 +257,7 @@ export const listAllDocumentsService = async () => {
     ORDER BY d.created_at DESC
   `;
   const rows = await safeExecute(sql, []);
-  return rows.map(row => ({
+  return rows.map((row) => ({
     id: row.document_id,
     title: row.title,
     mimeType: row.mime_type,
@@ -279,10 +276,10 @@ export const listAllDocumentsService = async () => {
 /**
  * Deletes any document (unlinks its PDF first).
  */
-export const adminDeleteDocumentService = async documentId => {
+export const adminDeleteDocumentService = async (documentId) => {
   const targetId = Number(documentId);
   const rows = await safeExecute(
-    'SELECT storage_path FROM documents WHERE document_id = ? LIMIT 1',
+    "SELECT storage_path FROM documents WHERE document_id = ? LIMIT 1",
     [targetId],
   );
   if (rows.length === 0) {
@@ -290,14 +287,14 @@ export const adminDeleteDocumentService = async documentId => {
   }
 
   try {
-    const { unlink } = await import('node:fs/promises');
+    const { unlink } = await import("node:fs/promises");
     await unlink(resolveStoragePath(rows[0].storage_path));
   } catch (error) {
-    if (error?.code !== 'ENOENT') {
+    if (error?.code !== "ENOENT") {
       throw new BadRequestError(`Failed to delete file: ${error.message}`);
     }
   }
 
-  await safeExecute('DELETE FROM documents WHERE document_id = ?', [targetId]);
+  await safeExecute("DELETE FROM documents WHERE document_id = ?", [targetId]);
   return { id: targetId };
 };
