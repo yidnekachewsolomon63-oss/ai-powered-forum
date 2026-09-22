@@ -21,6 +21,7 @@ import RagAnswerBody from '../../components/RagAnswerBody/RagAnswerBody.jsx';
 import ui from '../../styles/pageStates.module.css';
 import styles from './RagDocuments.module.css';
 
+
 const TABS = [
   { id: 'ask', label: 'Ask AI', icon: Sparkles },
   { id: 'search', label: 'Search', icon: Search },
