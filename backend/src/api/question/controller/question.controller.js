@@ -1,15 +1,17 @@
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes } from "http-status-codes";
 import {
   createQuestionWithVectorService,
   getQuestionsService,
   getSingleQuestionService,
   searchQuestionsSemanticService,
   getSimilarQuestionsService,
-} from '../service/question.service.js';
+  getDashboardStatsService,
+} from "../service/question.service.js";
 import {
   generateQuestionDraftCoachService,
   assessAnswerAgainstQuestionService,
-} from '../../../services/geminiTextCoach.service.js';
+  generateSuggestedAnswerService,
+} from "../../../services/geminiTextCoach.service.js";
 
 /**
  * POST /api/questions
@@ -27,7 +29,7 @@ export const createQuestionController = async (req, res, next) => {
 
     res.status(StatusCodes.CREATED).json({
       success: true,
-      message: 'Question posted successfully.',
+      message: "Question posted successfully.",
       data: question,
     });
   } catch (error) {
@@ -50,9 +52,27 @@ export const getQuestionsController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Questions fetched successfully.',
+      message: "Questions fetched successfully.",
       data: result.data,
       meta: result.meta,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/questions/stats
+ * Returns dashboard summary counts.
+ */
+export const getDashboardStatsController = async (req, res, next) => {
+  try {
+    const data = await getDashboardStatsService({ userId: req.user.id });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Dashboard stats fetched successfully.",
+      data,
     });
   } catch (error) {
     next(error);
@@ -70,7 +90,7 @@ export const getSingleQuestionController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Question fetched successfully',
+      message: "Question fetched successfully",
       question: result.question,
       answers: result.answers,
       answersMeta: result.answersMeta,
@@ -95,7 +115,7 @@ export const searchQuestionsSemanticController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Semantic search completed successfully',
+      message: "Semantic search completed successfully",
       data: result.data,
       meta: result.meta,
     });
@@ -120,7 +140,7 @@ export const getSimilarQuestionsController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Similar questions fetched successfully',
+      message: "Similar questions fetched successfully",
       data: result.data,
       meta: result.meta,
     });
@@ -145,7 +165,7 @@ export const assessAnswerAgainstQuestionController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Answer fit assessed',
+      message: "Answer fit assessed",
       data,
     });
   } catch (error) {
@@ -165,7 +185,31 @@ export const generateQuestionDraftCoachController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Draft suggestions generated',
+      message: "Draft suggestions generated",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/questions/:questionHash/answer-suggest
+ * Generates an AI-drafted answer for the question.
+ */
+export const generateSuggestedAnswerController = async (req, res, next) => {
+  try {
+    const { questionHash } = req.params;
+    const { answerText } = req.body;
+
+    const data = await generateSuggestedAnswerService({
+      questionHash,
+      answerText,
+    });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Suggested answer generated",
       data,
     });
   } catch (error) {
