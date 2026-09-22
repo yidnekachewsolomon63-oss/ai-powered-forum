@@ -9,8 +9,8 @@ import {
   voteAnswerValidation,
 } from "../validations/answer.validation.js";
 
-const router = express.Router();
-
+const router = express.Router();  
+// place where we define the URLs/endpoints for the answer system.
 /**
  * @route POST /api/answers
  * @desc Post an answer to a question
