@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { UnauthenticatedError } from "../utils/errors/index.js";
+import { UnauthenticatedError, ForbiddenError } from "../utils/errors/index.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -22,9 +22,20 @@ export const authenticateUser = (req, res, next) => {
       id: payload.id,
       firstName: payload.firstName,
       lastName: payload.lastName,
+      role: payload.role || "user",
     };
     next();
   } catch (error) {
     throw new UnauthenticatedError("Authentication invalid");
   }
+};
+
+/**
+ * Route guard for admin-only endpoints. Must run after {@link authenticateUser}.
+ */
+export const authorizeAdmin = (req, res, next) => {
+  if (req.user?.role !== "admin") {
+    throw new ForbiddenError("Admin access required");
+  }
+  next();
 };
