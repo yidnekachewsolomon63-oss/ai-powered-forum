@@ -10,6 +10,10 @@ import {
   Sparkles,
   Inbox,
   AlertCircle,
+  HelpCircle,
+  MessageSquarePlus,
+  CheckCircle,
+  UserRound,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { questionService } from "../../services/question/question.service.js";
@@ -29,6 +33,28 @@ export default function Dashboard() {
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadStats = async () => {
+      try {
+        const result = await questionService.getDashboardStats();
+        if (mounted) setStats(result.data || null);
+      } catch (_err) {
+        // Stats are decorative — ignore failures so the feed still renders.
+        // eslint-disable-next-line no-console
+        console.error(_err);
+      }
+    };
+
+    loadStats();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -94,6 +120,62 @@ export default function Dashboard() {
           Semantic search uses question embeddings to find “questions like
           this”.
         </div>
+      )}
+
+      {stats && (
+        <section className={styles.dashStats} aria-label="Forum summary">
+          <div className={styles.dashStatsGrid}>
+            <div className={`${styles.dashStatCard} ${styles.dashStatTotal}`}>
+              <span className={styles.dashStatIcon} aria-hidden>
+                <HelpCircle size={20} />
+              </span>
+              <div className={styles.dashStatText}>
+                <span className={styles.dashStatValue}>
+                  {stats.totalQuestions}
+                </span>
+                <span className={styles.dashStatLabel}>Total Questions</span>
+              </div>
+            </div>
+
+            <div className={`${styles.dashStatCard} ${styles.dashStatReplies}`}>
+              <span className={styles.dashStatIcon} aria-hidden>
+                <MessageSquarePlus size={20} />
+              </span>
+              <div className={styles.dashStatText}>
+                <span className={styles.dashStatValue}>
+                  {stats.totalReplies}
+                </span>
+                <span className={styles.dashStatLabel}>Total Replies</span>
+              </div>
+            </div>
+
+            <div
+              className={`${styles.dashStatCard} ${styles.dashStatAnswered}`}
+            >
+              <span className={styles.dashStatIcon} aria-hidden>
+                <CheckCircle size={20} />
+              </span>
+              <div className={styles.dashStatText}>
+                <span className={styles.dashStatValue}>
+                  {stats.answeredQuestions}
+                </span>
+                <span className={styles.dashStatLabel}>Answered Questions</span>
+              </div>
+            </div>
+
+            <div className={`${styles.dashStatCard} ${styles.dashStatMine}`}>
+              <span className={styles.dashStatIcon} aria-hidden>
+                <UserRound size={20} />
+              </span>
+              <div className={styles.dashStatText}>
+                <span className={styles.dashStatValue}>
+                  {stats.myQuestions}
+                </span>
+                <span className={styles.dashStatLabel}>My Questions</span>
+              </div>
+            </div>
+          </div>
+        </section>
       )}
 
       {isLoading && (
