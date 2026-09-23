@@ -70,3 +70,4 @@ export function getErrorMessage(
   if (typeof candidate === "string" && candidate.trim()) return candidate;
   return fallback;
 }
+// end of file

@@ -2,14 +2,14 @@
  * Shared question list card used on the Dashboard and My Questions pages.
  * Navigates to `/questions/:questionHash` on click.
  */
-import { Fragment } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MessageSquare, User, Clock, ArrowUpRight } from 'lucide-react';
-import { timeAgo } from '../../lib/utils';
-import styles from './QuestionCard.module.css';
+import { Fragment } from "react";
+import { useNavigate } from "react-router-dom";
+import { MessageSquare, User, Clock, ArrowUpRight } from "lucide-react";
+import { timeAgo } from "../../lib/utils";
+import styles from "./QuestionCard.module.css";
 
 function escapeRegExp(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -22,9 +22,9 @@ function buildHighlightTerms(query) {
   const terms = [];
   query
     .split(/[^\p{L}\p{N}]+/u)
-    .map(word => word.trim().toLowerCase())
-    .filter(word => word.length > 0)
-    .forEach(word => {
+    .map((word) => word.trim().toLowerCase())
+    .filter((word) => word.length > 0)
+    .forEach((word) => {
       if (!seen.has(word)) {
         seen.add(word);
         terms.push(word);
@@ -40,7 +40,7 @@ function buildHighlightTerms(query) {
  */
 function highlightMatches(text, terms) {
   if (!text || terms.length === 0) return text;
-  const pattern = new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi');
+  const pattern = new RegExp(`(${terms.map(escapeRegExp).join("|")})`, "gi");
   return text.split(pattern).map((part, index) => {
     if (index % 2 === 1) {
       return <mark key={index}>{part}</mark>;
@@ -69,11 +69,11 @@ export default function QuestionCard({ question, highlight }) {
     <article
       className={styles.card}
       onClick={handleClick}
-      role='link'
+      role="link"
       tabIndex={0}
       aria-label={`Open question: ${title}`}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           handleClick();
         }
@@ -92,12 +92,13 @@ export default function QuestionCard({ question, highlight }) {
         <div className={styles.cardMeta}>
           <span className={styles.cardMetaItem}>
             <User size={14} aria-hidden />
-            {author ? `${author.firstName} ${author.lastName}` : 'Unknown'}
+            {author ? `${author.firstName} ${author.lastName}` : "Unknown"}
           </span>
 
           <span className={styles.cardMetaItem}>
             <MessageSquare size={14} aria-hidden />
-            {answerCount ?? 0} {Number(answerCount) === 1 ? 'answer' : 'answers'}
+            {answerCount ?? 0}{" "}
+            {Number(answerCount) === 1 ? "answer" : "answers"}
           </span>
 
           {createdAt && (
@@ -115,3 +116,4 @@ export default function QuestionCard({ question, highlight }) {
     </article>
   );
 }
+// end of file
