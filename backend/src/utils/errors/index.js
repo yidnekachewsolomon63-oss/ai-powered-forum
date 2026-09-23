@@ -1,4 +1,5 @@
-import { StatusCodes } from 'http-status-codes';
+//updated
+import { StatusCodes } from "http-status-codes";
 
 class CustomAPIError extends Error {
   constructor(message) {
