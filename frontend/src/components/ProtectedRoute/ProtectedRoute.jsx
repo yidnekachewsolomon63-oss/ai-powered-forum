@@ -1,6 +1,6 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext.jsx';
-import styles from './ProtectedRoute.module.css';
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import styles from "./ProtectedRoute.module.css";
 
 /**
  * Wraps protected pages and redirects unauthenticated users to the login page,
@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children }) {
   // Session restore: show a neutral full-page loader (no route flash).
   if (loading) {
     return (
-      <div className={styles.protectedRoute__screen} role='status'>
+      <div className={styles.protectedRoute__screen} role="status">
         <div className={styles.protectedRoute__spinner} aria-hidden />
         <span>Checking your session…</span>
       </div>
@@ -22,7 +22,7 @@ export default function ProtectedRoute({ children }) {
 
   // Redirect to /auth if not authenticated, preserving the original URL
   if (!isAuthenticated) {
-    return <Navigate to='/auth' state={{ from: location }} replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // Render children if authenticated

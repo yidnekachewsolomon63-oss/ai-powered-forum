@@ -49,11 +49,12 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
   line-height: 1.55;
+  
+  /* FIXED: Removed white-space conflict to restore proper ellipsis text-clamping */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  white-space: pre-line;
 }
 
 .cardTitle mark,
@@ -101,3 +102,4 @@
   border-color: var(--primary);
   background-color: var(--primary-light);
 }
+/* css */

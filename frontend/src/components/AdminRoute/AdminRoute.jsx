@@ -1,6 +1,6 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext.jsx';
-import ProtectedRoute from '../ProtectedRoute/ProtectedRoute.jsx';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute.jsx";
 
 /**
  * Wraps admin pages. Requires an authenticated session (via ProtectedRoute)
@@ -9,9 +9,10 @@ import ProtectedRoute from '../ProtectedRoute/ProtectedRoute.jsx';
 export default function AdminRoute({ children }) {
   const { user } = useAuth();
 
-  if (user?.role !== 'admin') {
-    return <Navigate to='/dashboard' replace />;
+  if (user?.role !== "admin") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <ProtectedRoute>{children}</ProtectedRoute>;
 }
+// end of file

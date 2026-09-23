@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, LogOut, Sparkles, Bell, Check } from 'lucide-react';
-import { notificationService } from '../../services/notification/notification.service.js';
-import styles from './Navbar.module.css';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Search, LogOut, Sparkles, Bell, Check } from "lucide-react";
+import { notificationService } from "../../services/notification/notification.service.js";
+import styles from "./Navbar.module.css";
 
 /** Renders a friendly relative timestamp like "5m ago". */
 function formatRelativeTime(value) {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
+  if (Number.isNaN(date.getTime())) return "";
 
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return 'just now';
+  if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
@@ -31,17 +31,17 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
   // Initialize searchTerm from URL if we are already on the dashboard
   const [searchTerm, setSearchTerm] = useState(() => {
     const params = new URLSearchParams(location.search);
-    return params.get('q') || params.get('semantic') || '';
+    return params.get("q") || params.get("semantic") || "";
   });
 
   // Keep input in sync with URL if it changes externally
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (location.pathname === '/dashboard') {
+      if (location.pathname === "/dashboard") {
         const params = new URLSearchParams(location.search);
-        setSearchTerm(params.get('q') || params.get('semantic') || '');
+        setSearchTerm(params.get("q") || params.get("semantic") || "");
       } else {
-        setSearchTerm('');
+        setSearchTerm("");
       }
     }, 0);
     return () => window.clearTimeout(timer);
@@ -52,29 +52,29 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       const params = new URLSearchParams(location.search);
-      const inSemanticMode = Boolean(params.get('semantic'));
-      if (searchTerm.trim() !== '' && !inSemanticMode) {
+      const inSemanticMode = Boolean(params.get("semantic"));
+      if (searchTerm.trim() !== "" && !inSemanticMode) {
         navigate(`/dashboard?q=${encodeURIComponent(searchTerm)}`);
       } else if (
-        searchTerm.trim() === '' &&
-        location.pathname === '/dashboard' &&
+        searchTerm.trim() === "" &&
+        location.pathname === "/dashboard" &&
         !inSemanticMode
       ) {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, navigate, location.pathname, location.search]);
 
-  const handleSemanticSearch = e => {
+  const handleSemanticSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim().length >= 3) {
       navigate(`/dashboard?semantic=${encodeURIComponent(searchTerm)}`);
     }
   };
 
-  const handleSearchSubmit = e => {
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/dashboard?q=${encodeURIComponent(searchTerm)}`);
@@ -114,30 +114,28 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
   // Refresh right before opening the dropdown so the list is fresh.
   const toggleNotifDropdown = () => {
     if (!notifOpen) loadNotifications();
-    setNotifOpen(prev => !prev);
+    setNotifOpen((prev) => !prev);
   };
 
   // Close the dropdown on outside click / on navigation.
   useEffect(() => {
     if (!notifOpen) return undefined;
-    const onDocClick = e => {
+    const onDocClick = (e) => {
       if (bellRef.current && !bellRef.current.contains(e.target)) {
         setNotifOpen(false);
       }
     };
-    document.addEventListener('click', onDocClick);
-    return () => document.removeEventListener('click', onDocClick);
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
   }, [notifOpen]);
 
-  const openNotification = async notif => {
+  const openNotification = async (notif) => {
     setNotifOpen(false);
     if (!notif.isRead) {
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === notif.id ? { ...n, isRead: true } : n,
-        ),
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)),
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
       notificationService.markRead(notif.id).catch(() => {});
     }
     if (notif.questionHash) {
@@ -146,7 +144,7 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
   };
 
   const markAllRead = async () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
     try {
       await notificationService.markAllRead();
@@ -165,27 +163,27 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
       </div>
 
       <form className={styles.navbar__search} onSubmit={handleSearchSubmit}>
-        <div className={styles['navbar__search-icon']}>
+        <div className={styles["navbar__search-icon"]}>
           <Search size={16} />
         </div>
         <input
-          id='search'
-          type='text'
+          id="search"
+          type="text"
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          placeholder='Search questions by keyword…'
-          className={styles['navbar__search-input']}
-          aria-label='Search questions by keyword'
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search questions by keyword…"
+          className={styles["navbar__search-input"]}
+          aria-label="Search questions by keyword"
         />
         {searchTerm.length >= 3 && (
           <button
-            type='button'
+            type="button"
             onClick={handleSemanticSearch}
-            className={styles['navbar__semantic-button']}
-            title='Use AI Semantic Search'
+            className={styles["navbar__semantic-button"]}
+            title="Use AI Semantic Search"
           >
             <Sparkles size={14} />
-            <span className={styles['navbar__semantic-text']}>AI Search</span>
+            <span className={styles["navbar__semantic-text"]}>AI Search</span>
           </button>
         )}
       </form>
@@ -194,31 +192,31 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
         {user && (
           <div className={styles.navbar__bellWrap} ref={bellRef}>
             <button
-              type='button'
+              type="button"
               className={styles.navbar__notification}
               onClick={toggleNotifDropdown}
               aria-label={
                 unreadCount > 0
                   ? `Notifications, ${unreadCount} unread`
-                  : 'Notifications'
+                  : "Notifications"
               }
               aria-expanded={notifOpen}
             >
               <Bell size={20} />
               {unreadCount > 0 && (
                 <span className={styles.navbar__notificationBadge}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
+                  {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
             </button>
 
             {notifOpen && (
-              <div className={styles.navbar__notificationDropdown} role='menu'>
+              <div className={styles.navbar__notificationDropdown} role="menu">
                 <div className={styles.navbar__notificationHead}>
                   <span>Notifications</span>
                   {unreadCount > 0 && (
                     <button
-                      type='button'
+                      type="button"
                       className={styles.navbar__notificationMarkAll}
                       onClick={markAllRead}
                     >
@@ -235,20 +233,25 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
                   </p>
                 ) : (
                   <ul className={styles.navbar__notificationList}>
-                    {notifications.map(notif => (
+                    {notifications.map((notif) => (
                       <li key={notif.id}>
                         <button
-                          type='button'
+                          type="button"
                           className={`${styles.navbar__notificationItem} ${
                             notif.isRead
-                              ? ''
+                              ? ""
                               : styles.navbar__notificationItemUnread
                           }`}
                           onClick={() => openNotification(notif)}
                         >
-                          <span className={styles.navbar__notificationDot} aria-hidden />
+                          <span
+                            className={styles.navbar__notificationDot}
+                            aria-hidden
+                          />
                           <span className={styles.navbar__notificationCopy}>
-                            <span className={styles.navbar__notificationMessage}>
+                            <span
+                              className={styles.navbar__notificationMessage}
+                            >
                               {notif.message}
                             </span>
                             <span className={styles.navbar__notificationTime}>
@@ -266,29 +269,29 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
         )}
 
         <div className={styles.navbar__user}>
-          <span className={styles['navbar__user-name']}>
-            {user ? `${user.firstName} ${user.lastName}` : 'Guest'}
+          <span className={styles["navbar__user-name"]}>
+            {user ? `${user.firstName} ${user.lastName}` : "Guest"}
           </span>
-          <div className={styles['navbar__user-avatar']}>
+          <div className={styles["navbar__user-avatar"]}>
             <img
               src={
                 user?.avatar ||
                 `https://ui-avatars.com/api/?name=${
-                  user?.firstName || 'User'
-                }+${user?.lastName || ''}&background=random`
+                  user?.firstName || "User"
+                }+${user?.lastName || ""}&background=random`
               }
-              alt='avatar'
-              referrerPolicy='no-referrer'
+              alt="avatar"
+              referrerPolicy="no-referrer"
             />
           </div>
         </div>
         {user && (
           <button
-            type='button'
+            type="button"
             className={styles.navbar__logout}
             onClick={onLogout}
-            aria-label='Logout'
-            title='Logout'
+            aria-label="Logout"
+            title="Logout"
           >
             <LogOut size={20} />
           </button>
@@ -297,3 +300,4 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
     </header>
   );
 }
+// end of file

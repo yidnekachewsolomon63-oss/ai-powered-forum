@@ -1,8 +1,8 @@
-import { Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import Navbar from '../Navbar/Navbar.jsx';
-import Sidebar from '../Sidebar/Sidebar.jsx';
-import styles from './Layout.module.css';
+import { Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import Navbar from "../Navbar/Navbar.jsx";
+import Sidebar from "../Sidebar/Sidebar.jsx";
+import styles from "./Layout.module.css";
 
 /**
  * Authenticated shell: fixed sidebar + scrollable main column + footer.
@@ -15,38 +15,41 @@ export default function Layout() {
   /** Navbar title: keep in sync with routes in `App.jsx`. */
   const getTitle = () => {
     const path = location.pathname;
-    if (path === '/dashboard') return 'Home';
-    if (path === '/my-questions') return 'Your topics';
-    if (path === '/questions/ask') return 'Ask a question';
-    if (path.startsWith('/questions/')) return 'Discussion';
-    if (path === '/rag-documents') return 'Knowledge base';
-    if (path === '/admin') return 'Admin dashboard';
-    if (path === '/admin/users') return 'Manage users';
-    if (path === '/admin/questions') return 'Manage questions';
-    if (path === '/admin/answers') return 'Manage answers';
-    if (path === '/admin/documents') return 'Manage documents';
-    return 'Forum';
+    if (path === "/dashboard") return "Home";
+    if (path === "/my-questions") return "Your topics";
+    if (path === "/questions/ask") return "Ask a question";
+    if (path.startsWith("/questions/")) return "Discussion";
+    if (path === "/rag-documents") return "Knowledge base";
+    if (path === "/admin") return "Admin dashboard";
+    if (path === "/admin/users") return "Manage users";
+    if (path === "/admin/questions") return "Manage questions";
+    if (path === "/admin/answers") return "Manage answers";
+    if (path === "/admin/documents") return "Manage documents";
+    return "Forum";
   };
 
   /** One-line context under the title (helps students orient on each screen). */
   const getSubtitle = () => {
     const path = location.pathname;
-    if (path === '/dashboard')
-      return 'Browse the feed, search by keyword, or run AI similarity search.';
-    if (path === '/my-questions')
-      return 'Questions you have posted. Open any thread to read replies or edit context.';
-    if (path === '/questions/ask')
-      return 'A clear title and reproducible steps get faster, more accurate answers.';
-    if (path.startsWith('/questions/'))
-      return 'Read the thread, review related topics, and reply with markdown if you can help.';
-    if (path === '/rag-documents')
-      return 'Private PDF library: reader, semantic search, and AI answers with citations per document.';
-    if (path === '/admin') return 'Site-wide overview and moderation tools.';
-    if (path === '/admin/users') return 'Promote, deactivate, or remove accounts.';
-    if (path === '/admin/questions') return 'Review and moderate all questions.';
-    if (path === '/admin/answers') return 'Review and moderate all answers.';
-    if (path === '/admin/documents') return 'Review all knowledge-base documents.';
-    return '';
+    if (path === "/dashboard")
+      return "Browse the feed, search by keyword, or run AI similarity search.";
+    if (path === "/my-questions")
+      return "Questions you have posted. Open any thread to read replies or edit context.";
+    if (path === "/questions/ask")
+      return "A clear title and reproducible steps get faster, more accurate answers.";
+    if (path.startsWith("/questions/"))
+      return "Read the thread, review related topics, and reply with markdown if you can help.";
+    if (path === "/rag-documents")
+      return "Private PDF library: reader, semantic search, and AI answers with citations per document.";
+    if (path === "/admin") return "Site-wide overview and moderation tools.";
+    if (path === "/admin/users")
+      return "Promote, deactivate, or remove accounts.";
+    if (path === "/admin/questions")
+      return "Review and moderate all questions.";
+    if (path === "/admin/answers") return "Review and moderate all answers.";
+    if (path === "/admin/documents")
+      return "Review all knowledge-base documents.";
+    return "";
   };
 
   return (
@@ -66,28 +69,28 @@ export default function Layout() {
         </main>
 
         <footer className={styles.layout__footer}>
-          <div className={styles['layout__footer-content']}>
-            <div className={styles['layout__footer-branding']}>
-              <h4 className={styles['layout__footer-title']}>Evangadi Forum</h4>
-              <p className={styles['layout__footer-tagline']}>
+          <div className={styles["layout__footer-content"]}>
+            <div className={styles["layout__footer-branding"]}>
+              <h4 className={styles["layout__footer-title"]}>Evangadi Forum</h4>
+              <p className={styles["layout__footer-tagline"]}>
                 A practice space for technical Q&A, peer feedback, and
                 AI-assisted search, built for Evangadi learners and mentors.
               </p>
-              <p className={styles['layout__footer-copyright']}>
+              <p className={styles["layout__footer-copyright"]}>
                 © 2026 Evangadi Forum. For educational use.
               </p>
             </div>
-            <nav className={styles['layout__footer-nav']}>
-              <a href='#' className={styles['layout__footer-link']}>
+            <nav className={styles["layout__footer-nav"]}>
+              <a href="#" className={styles["layout__footer-link"]}>
                 About
               </a>
-              <a href='#' className={styles['layout__footer-link']}>
+              <a href="#" className={styles["layout__footer-link"]}>
                 Privacy
               </a>
-              <a href='#' className={styles['layout__footer-link']}>
+              <a href="#" className={styles["layout__footer-link"]}>
                 Terms
               </a>
-              <a href='#' className={styles['layout__footer-link']}>
+              <a href="#" className={styles["layout__footer-link"]}>
                 Contact
               </a>
             </nav>
@@ -97,3 +100,4 @@ export default function Layout() {
     </div>
   );
 }
+// end of file
