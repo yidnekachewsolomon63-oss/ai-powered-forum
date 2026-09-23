@@ -31,7 +31,7 @@ export const authenticateUser = (req, res, next) => {
 };
 
 /**
- * Route guard for admin-only endpoints. Must run after {@link authenticateUser}.
+ * Route guard for admin-only endpoints updated. Must run after {@link authenticateUser}.
  */
 export const authorizeAdmin = (req, res, next) => {
   if (req.user?.role !== "admin") {

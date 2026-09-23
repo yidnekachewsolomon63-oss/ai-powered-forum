@@ -25,7 +25,7 @@ function safeExtension(file) {
 
 /**
  * Stores uploaded file at `<UPLOAD_ROOT>/<userId>/<millis>-<random><ext>`
- * and returns the user-relative path (used as `storage_path`).
+ * and returns the user-relative path (used as `storage_path`). pdf storage
  */
 const pdfStorage = multer.diskStorage({
   destination(req, _file, cb) {

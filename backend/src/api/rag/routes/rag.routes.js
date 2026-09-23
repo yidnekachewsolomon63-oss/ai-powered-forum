@@ -21,7 +21,7 @@ import {
 
 const router = express.Router();
 
-// All RAG routes are protected.
+// All RAG routes are protected and updated.
 router.use(authenticateUser);
 
 /**

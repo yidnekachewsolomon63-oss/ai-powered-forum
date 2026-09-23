@@ -1,5 +1,5 @@
 /**
- * Vector math + text chunking helpers for semantic search and RAG.
+ * Vector math + text chunking helpers for semantic search and RAG update.
  */
 
 /**
