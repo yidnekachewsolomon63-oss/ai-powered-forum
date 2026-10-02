@@ -31,7 +31,9 @@
 
   /* Surface colors */
   --surface: #ffffff;
+  --surface-main: #ffffff;
   --surface-hover: #f8fafc;
+  --surface-container: #ffffff;
   --surface-container-low: #f1f5f9;
   --surface-container-high: #e2e8f0;
   --surface-container-highest: #cbd5e1;
@@ -226,4 +228,3 @@ h5 {
 h6 {
   font-size: var(--text-base);
 }
-/* Base Typography */

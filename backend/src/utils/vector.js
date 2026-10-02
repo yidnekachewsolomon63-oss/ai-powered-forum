@@ -1,5 +1,5 @@
 /**
- * Vector math + text chunking helpers for semantic search and RAG update.
+ * Vector math + text chunking helpers for semantic search and RAG.
  */
 
 /**
@@ -10,12 +10,7 @@
  * @returns {number} Cosine similarity score in the range [-1, 1] (0 on malformed input).
  */
 export function cosineSimilarity(a, b) {
-  if (
-    !Array.isArray(a) ||
-    !Array.isArray(b) ||
-    a.length === 0 ||
-    a.length !== b.length
-  ) {
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length === 0 || a.length !== b.length) {
     return 0;
   }
 
@@ -43,7 +38,7 @@ export function cosineSimilarity(a, b) {
  */
 export function parseEmbedding(embedding) {
   if (Array.isArray(embedding)) return embedding;
-  if (typeof embedding === "string") {
+  if (typeof embedding === 'string') {
     try {
       const parsed = JSON.parse(embedding);
       return Array.isArray(parsed) ? parsed : parsed?.values || [];
@@ -51,7 +46,7 @@ export function parseEmbedding(embedding) {
       return [];
     }
   }
-  if (embedding && typeof embedding === "object") {
+  if (embedding && typeof embedding === 'object') {
     return Array.isArray(embedding.values) ? embedding.values : [];
   }
   return [];
@@ -67,7 +62,7 @@ export function parseEmbedding(embedding) {
  * @returns {string[]} Array of text chunks.
  */
 export function chunkText(text, chunkChars = 900, overlap = 120) {
-  const cleaned = (text || "").replace(/\r\n/g, "\n").trim();
+  const cleaned = (text || '').replace(/\r\n/g, '\n').trim();
   if (!cleaned) return [];
 
   const size = Math.max(64, Math.floor(chunkChars));
@@ -83,8 +78,8 @@ export function chunkText(text, chunkChars = 900, overlap = 120) {
     if (end < cleaned.length) {
       // Try to break at a sentence/newline boundary before the hard end.
       const window = cleaned.slice(Math.max(0, end - 220), end);
-      const lastPeriod = window.lastIndexOf(". ");
-      const lastNewline = window.lastIndexOf("\n");
+      const lastPeriod = window.lastIndexOf('. ');
+      const lastNewline = window.lastIndexOf('\n');
       let boundary = -1;
       if (lastPeriod > 120) boundary = lastPeriod + 1;
       else if (lastNewline > 60) boundary = lastNewline + 1;
@@ -120,7 +115,7 @@ export function generateHexHash(length = 16) {
     bytes[i] = Math.floor(Math.random() * 256);
   }
   return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
     .slice(0, length);
 }
